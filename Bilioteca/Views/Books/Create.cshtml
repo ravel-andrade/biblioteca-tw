@@ -1,51 +1,51 @@
 ﻿@model Bilioteca.Models.Book
 
 @{
-    ViewData["Title"] = "Create";
+    ViewBag.Status = new SelectList(new object[]
+{
+    new {Name = "Disponivel", Value = "1"},
+    new {Name = "Indisponivel", Value = "0"}
+}, "Value", "Name");
+
+    ViewData["Title"] = "Cadastrar livro";
 }
 
-<h2>Create</h2>
+<h2>Cadastrar livro</h2>
 
-<h4>Book</h4>
+<h4>Livro</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+                <label asp-for="Title" class="control-label">Titulo</label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Author" class="control-label"></label>
+                <label asp-for="Author" class="control-label">Autor</label>
                 <input asp-for="Author" class="form-control" />
                 <span asp-validation-for="Author" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Year" class="control-label"></label>
+                <label asp-for="Year" class="control-label">Ano</label>
                 <input asp-for="Year" class="form-control" />
                 <span asp-validation-for="Year" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
+                @Html.DropDownList("Status")
             </div>
             <div class="form-group">
-                <label asp-for="BorrowedFor" class="control-label"></label>
-                <input asp-for="BorrowedFor" class="form-control" />
-                <span asp-validation-for="BorrowedFor" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Cadastrar" class="btn btn-default" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Voltar</a>
 </div>
 
 @section Scripts {

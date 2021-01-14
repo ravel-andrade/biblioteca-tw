@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Bilioteca.Data;
+using Bilioteca.Services;
 
 namespace Bilioteca
 {
@@ -37,15 +38,21 @@ namespace Bilioteca
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<BiliotecaContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("BiliotecaContext")));
+                    options.UseMySql(Configuration.GetConnectionString("BiliotecaContext"), builder =>
+                    builder.MigrationsAssembly("Bilioteca")));
+
+            services.AddScoped<BookService>();
+            services.AddScoped<UserService>();
+            services.AddScoped<SeedingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedingService seedingService)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                seedingService.Seed();
             }
             else
             {

@@ -4,28 +4,28 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<h2>Listagem de livros</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Cadastrar livro</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                @Html.DisplayName("Titulo")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Author)
+                @Html.DisplayName("Autor")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Year)
+                @Html.DisplayName("Ano")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
+                @Html.DisplayName("Status")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BorrowedFor)
+                @Html.DisplayName("Local")
             </th>
             <th></th>
         </tr>
@@ -46,12 +46,14 @@
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BorrowedFor)
+                @Html.DisplayFor(modelItem => item.User.Name)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Borrow" asp-route-id="@item.Id">Emprestar</a> |
+                <a asp-action="GiveBack" asp-route-id="@item.Id">Devolver</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+
+                <a asp-action="Delete" asp-route-id="@item.Id">Deletar</a>
             </td>
         </tr>
 }

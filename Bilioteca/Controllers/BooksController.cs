@@ -7,26 +7,33 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bilioteca.Data;
 using Bilioteca.Models;
+using Bilioteca.Services;
+using Bilioteca.Models.Enums;
 
 namespace Bilioteca.Controllers
 {
     public class BooksController : Controller
     {
         private readonly BiliotecaContext _context;
+        private readonly BookService _bookService;
+        private readonly UserService _userService;
 
-        public BooksController(BiliotecaContext context)
+        public BooksController(BiliotecaContext context, BookService bookService, UserService userService)
         {
             _context = context;
+            _bookService = bookService;
+            _userService = userService;
         }
 
         // GET: Books
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Book.ToListAsync());
+            return View(_context.Book.Include(q => q.User).ToList());
         }
 
+       
         // GET: Books/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> GiveBack(int? id)
         {
             if (id == null)
             {
@@ -49,6 +56,29 @@ namespace Bilioteca.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Borrow(int? id)
+        {
+            var users = _userService.FindAll();
+            var itemToRemove = users.Single(r => r.Id == 1);
+            users.Remove(itemToRemove);
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var book = await _context.Book
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new BorrowFormViewModel { Users = users, Book = book };
+
+            return View(viewModel);
+        }
+
         // POST: Books/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -58,8 +88,8 @@ namespace Bilioteca.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(book);
-                await _context.SaveChangesAsync();
+                _bookService.Insert(book);
+                
                 return RedirectToAction(nameof(Index));
             }
             return View(book);
@@ -86,7 +116,7 @@ namespace Bilioteca.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Year,Status,BorrowedFor")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Year,Status,UserId")] Book book)
         {
             if (id != book.Id)
             {
@@ -116,6 +146,47 @@ namespace Bilioteca.Controllers
             return View(book);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GiveBack(int id, [Bind("Id,Title,Author,Year,Status,UserId")] Book book)
+        {
+
+           var container = _userService.FindAll().Where(v => v.Id == 1);
+            User user = container.First(); 
+            if (id != book.Id)
+            {
+                return NotFound();
+            }
+
+            book.User = user;
+            book.UserId = user.Id;
+
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    book.Status = BookStatus.Disponivel;
+                    _context.Update(book);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookExists(book.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(book);
+        }
+
+
         // GET: Books/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -143,6 +214,41 @@ namespace Bilioteca.Controllers
             _context.Book.Remove(book);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Borrow(int id, [Bind("Id,Title,Author,Year,Status,UserId")] Book book)
+        {
+           
+            if (id != book.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    
+                    book.Status = BookStatus.Indisponivel;
+                    _context.Update(book);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookExists(book.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(book);
         }
 
         private bool BookExists(int id)

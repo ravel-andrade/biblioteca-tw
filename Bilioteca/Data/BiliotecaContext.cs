@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace Bilioteca.Data
 {
     public class BiliotecaContext : DbContext
     {
-        public BiliotecaContext (DbContextOptions<BiliotecaContext> options)
+        public BiliotecaContext(DbContextOptions<BiliotecaContext> options)
             : base(options)
         {
         }

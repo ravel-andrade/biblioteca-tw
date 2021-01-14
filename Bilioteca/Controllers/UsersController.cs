@@ -22,26 +22,13 @@ namespace Bilioteca.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            return View(await _context.User.ToListAsync());
+            List <User> users= await _context.User.ToListAsync();
+            var itemToRemove = users.Single(r => r.Id == 1);
+            users.Remove(itemToRemove);
+            return View(users);
         }
 
-        // GET: Users/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.User
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
+        
 
         // GET: Users/Create
         public IActionResult Create()
